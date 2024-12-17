@@ -1,0 +1,81 @@
+import pygame
+import math
+
+# Inicializar pygame
+pygame.init()
+
+# Configuración de la pantalla
+WIDTH, HEIGHT = 800, 600
+WIN = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Juego de Billar")
+
+# Colores
+WHITE = (255, 255, 255)
+GREEN = (0, 128, 0)
+RED = (255, 0, 0)
+
+# Constantes
+BALL_RADIUS = 15
+FPS = 60
+
+class Ball:
+    def __init__(self, x, y, color):
+        self.x = x
+        self.y = y
+        self.color = color
+        self.vel_x = 0
+        self.vel_y = 0
+
+    def draw(self, win):
+        pygame.draw.circle(win, self.color, (self.x, self.y), BALL_RADIUS)
+
+    def move(self):
+        self.x += self.vel_x
+        self.y += self.vel_y
+        # Fricción
+        self.vel_x *= 0.98
+        self.vel_y *= 0.98
+        if abs(self.vel_x) < 0.1:
+            self.vel_x = 0
+        if abs(self.vel_y) < 0.1:
+            self.vel_y = 0
+
+def draw_window(balls):
+    WIN.fill(GREEN)
+    for ball in balls:
+        ball.draw(WIN)
+    pygame.display.update()
+
+def main():
+    run = True
+    clock = pygame.time.Clock()
+    
+    balls = [
+        Ball(400, 300, WHITE),
+        Ball(450, 300, RED)
+    ]
+    
+    while run:
+        clock.tick(FPS)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                mx, my = pygame.mouse.get_pos()
+                for ball in balls:
+                    dx = ball.x - mx
+                    dy = ball.y - my
+                    distance = math.sqrt(dx**2 + dy**2)
+                    if distance < BALL_RADIUS:
+                        ball.vel_x = dx * -0.1
+                        ball.vel_y = dy * -0.1
+
+        for ball in balls:
+            ball.move()
+        
+        draw_window(balls)
+    
+    pygame.quit()
+
+if __name__ == "__main__":
+    main()
